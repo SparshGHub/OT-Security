@@ -11,13 +11,24 @@ The entire application is designed to run locally using Docker and Docker Compos
 
 ## 1. Setup
 
-First, create a `.env` file in the root directory by copying the example file.
+First, create a `.env` file in the root directory. You can copy the example file if it exists, or create a new `.env` file with the following required variables:
 
 ```bash
-cp .env.example .env
+# Ports mapping
+FRONTEND_PORT=3000
+BACKEND_PORT=4000
+
+# Database Configuration
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=your_secure_password
+DB_NAME=dcsdb
+
+# Backend Security
+JWT_SECRET=super_secret_jwt_key_change_me
 ```
 
-Review the `.env` file. You must change `JWT_SECRET` to a new, securely generated random string. The default database and port values are configured to work with Docker Compose out of the box.
+Review the `.env` file and make sure to change the `JWT_SECRET` and `DB_PASSWORD` in a production environment. The default values provided are configured to work seamlessly with Docker Compose out of the box.
 
 ## 2. Running the Application with Docker Compose
 
