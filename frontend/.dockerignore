@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+.turbo
+.vercel
+.cache
+.DS_Store
+*.log
+.env
+coverage
+__tests__
+__mocks__
+

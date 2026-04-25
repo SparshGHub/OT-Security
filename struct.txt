@@ -1,0 +1,221 @@
+.
+├── backend
+│   ├── Dockerfile
+│   ├── .dockerignore
+│   ├── package.json
+│   ├── src
+│   │   ├── api
+│   │   │   ├── controllers
+│   │   │   │   ├── authController.ts
+│   │   │   │   ├── eventsController.ts
+│   │   │   │   ├── libraryController.ts
+│   │   │   │   ├── plantController.ts
+│   │   │   │   └── simulationController.ts
+│   │   │   ├── middleware
+│   │   │   │   └── authMiddleware.ts
+│   │   │   └── routes
+│   │   │       ├── authRoutes.ts
+│   │   │       ├── eventRoutes.ts
+│   │   │       ├── index.ts
+│   │   │       ├── libraryRoutes.ts
+│   │   │       ├── plantRoutes.ts
+│   │   │       └── simulationRoutes.ts
+│   │   ├── db
+│   │   │   ├── init.ts
+│   │   │   └── pool.ts
+│   │   ├── server.ts
+│   │   ├── services
+│   │   │   ├── ruleEngine.ts
+│   │   │   └── simulationService.ts
+│   │   └── types.ts
+│   └── tsconfig.json
+├── components.json
+├── DIRSTRUCT
+│   ├── BACKEND.png
+│   ├── FRONT1.png
+│   ├── FRONT2.png
+│   ├── root.png
+│   └── Screenshot from 2025-10-26 06-30-45.png
+├── docker-compose.yml
+├── .dockerignore
+├── docs
+│   └── blueprint.md
+├── .env
+├── .env.local
+├── .env.local.example
+├── frontend
+│   ├── Dockerfile
+│   ├── .dockerignore
+│   ├── next.config.mjs
+│   ├── package.json
+│   ├── postcss.config.mjs
+│   ├── src
+│   │   ├── app
+│   │   │   ├── globals.css
+│   │   │   ├── layout.tsx
+│   │   │   ├── page.tsx
+│   │   │   └── timeline
+│   │   │       └── page.tsx
+│   │   ├── components
+│   │   │   ├── auth
+│   │   │   │   └── LoginPage.tsx
+│   │   │   ├── dashboard
+│   │   │   │   ├── bottom-panel
+│   │   │   │   │   ├── BottomPanel.tsx
+│   │   │   │   │   ├── EventTimeline.tsx
+│   │   │   │   │   └── MitigationPlaybookModal.tsx
+│   │   │   │   ├── CenterPanel.tsx
+│   │   │   │   ├── LeftPanel.tsx
+│   │   │   │   ├── process-flow
+│   │   │   │   │   ├── AddComponentDialog.tsx
+│   │   │   │   │   ├── flowBuilder.ts
+│   │   │   │   │   └── ProcessFlow.tsx
+│   │   │   │   ├── RightPanel.tsx
+│   │   │   │   └── simulation
+│   │   │   │       └── SimulationPanel.tsx
+│   │   │   ├── layout
+│   │   │   │   ├── Header.tsx
+│   │   │   │   ├── MainDashboard.tsx
+│   │   │   │   └── MainDashboardWrapper.tsx
+│   │   │   ├── MitigationPlaybookModal.tsx
+│   │   │   └── ui
+│   │   │       ├── badge.tsx
+│   │   │       ├── button.tsx
+│   │   │       ├── card.tsx
+│   │   │       ├── dialog.tsx
+│   │   │       ├── input.tsx
+│   │   │       ├── label.tsx
+│   │   │       ├── resizable.tsx
+│   │   │       ├── scroll-area.tsx
+│   │   │       ├── select.tsx
+│   │   │       ├── separator.tsx
+│   │   │       ├── toaster.tsx
+│   │   │       ├── toast.tsx
+│   │   │       └── use-toast.ts
+│   │   └── lib
+│   │       ├── api.ts
+│   │       ├── context
+│   │       │   └── AppStateContext.tsx
+│   │       ├── types.ts
+│   │       └── utils.ts
+│   ├── tailwind.config.ts
+│   └── tsconfig.json
+├── .idx
+│   ├── dev.nix
+│   └── icon.png
+├── mitigations
+│   ├── mitigations_library.json
+│   └── mitigations_schema.json
+├── .modified
+├── .next
+│   ├── app-build-manifest.json
+│   ├── build-manifest.json
+│   ├── cache
+│   │   ├── .rscinfo
+│   │   └── webpack
+│   │       ├── client-development
+│   │       │   ├── 0.pack.gz
+│   │       │   ├── 1.pack.gz
+│   │       │   ├── 2.pack.gz
+│   │       │   ├── 3.pack.gz
+│   │       │   ├── 4.pack.gz
+│   │       │   ├── 5.pack.gz
+│   │       │   ├── 6.pack.gz
+│   │       │   ├── index.pack.gz
+│   │       │   └── index.pack.gz.old
+│   │       └── server-development
+│   │           ├── 0.pack.gz
+│   │           ├── 1.pack.gz
+│   │           ├── 2.pack.gz
+│   │           ├── 3.pack.gz
+│   │           ├── 4.pack.gz
+│   │           ├── 5.pack.gz
+│   │           ├── 6.pack.gz
+│   │           ├── 7.pack.gz
+│   │           ├── index.pack.gz
+│   │           └── index.pack.gz.old
+│   ├── package.json
+│   ├── react-loadable-manifest.json
+│   ├── server
+│   │   ├── app
+│   │   │   ├── _not-found
+│   │   │   │   ├── page_client-reference-manifest.js
+│   │   │   │   └── page.js
+│   │   │   ├── page_client-reference-manifest.js
+│   │   │   └── page.js
+│   │   ├── app-paths-manifest.json
+│   │   ├── interception-route-rewrite-manifest.js
+│   │   ├── middleware-build-manifest.js
+│   │   ├── middleware-manifest.json
+│   │   ├── middleware-react-loadable-manifest.js
+│   │   ├── next-font-manifest.js
+│   │   ├── next-font-manifest.json
+│   │   ├── pages-manifest.json
+│   │   ├── server-reference-manifest.js
+│   │   ├── server-reference-manifest.json
+│   │   ├── vendor-chunks
+│   │   │   ├── next.js
+│   │   │   ├── @opentelemetry.js
+│   │   │   └── @swc.js
+│   │   └── webpack-runtime.js
+│   ├── static
+│   │   ├── chunks
+│   │   │   ├── app
+│   │   │   │   ├── layout.js
+│   │   │   │   ├── _not-found
+│   │   │   │   │   └── page.js
+│   │   │   │   └── page.js
+│   │   │   ├── app-pages-internals.js
+│   │   │   ├── main-app.js
+│   │   │   ├── polyfills.js
+│   │   │   └── webpack.js
+│   │   ├── css
+│   │   │   └── app
+│   │   │       └── layout.css
+│   │   ├── development
+│   │   │   ├── _buildManifest.js
+│   │   │   └── _ssgManifest.js
+│   │   ├── media
+│   │   │   ├── 19cfc7226ec3afaa-s.woff2
+│   │   │   ├── 21350d82a1f187e9-s.woff2
+│   │   │   ├── 8e9860b6e62d6359-s.woff2
+│   │   │   ├── ba9851c3c22cd980-s.woff2
+│   │   │   ├── c5fe6dc8356a8c31-s.woff2
+│   │   │   ├── df0a9ae256c0569c-s.woff2
+│   │   │   └── e4af272ccee01ff0-s.p.woff2
+│   │   └── webpack
+│   │       ├── 5aa6508005c74f83.webpack.hot-update.json
+│   │       ├── 633457081244afec._.hot-update.json
+│   │       ├── 7d18c0485e227752.webpack.hot-update.json
+│   │       ├── app
+│   │       │   └── layout.b4d919b5f3d941db.hot-update.js
+│   │       ├── b4d919b5f3d941db.webpack.hot-update.json
+│   │       ├── c90e71a6dc78b320.webpack.hot-update.json
+│   │       ├── webpack.5aa6508005c74f83.hot-update.js
+│   │       ├── webpack.7d18c0485e227752.hot-update.js
+│   │       ├── webpack.b4d919b5f3d941db.hot-update.js
+│   │       └── webpack.c90e71a6dc78b320.hot-update.js
+│   ├── trace
+│   └── types
+│       ├── app
+│       │   ├── layout.ts
+│       │   └── page.ts
+│       └── package.json
+├── next-env.d.ts
+├── package.json
+├── package-lock.json
+├── postcss.config.mjs
+├── README.md
+├── rules
+│   ├── rules_library.json
+│   └── rules_schema.json
+├── sql
+│   ├── schema.sql
+│   ├── seed_rules.sql
+│   └── seed_topology.sql
+├── struct.txt
+└── topology
+    ├── plant_instance.json
+    └── plant_schema.json
+
+50 directories, 168 files

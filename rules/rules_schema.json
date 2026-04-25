@@ -1,0 +1,114 @@
+
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Rule Schema for DCS Simulator",
+  "description": "Defines the structure of a detection rule.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the rule."
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name of the rule."
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed explanation of what the rule detects."
+    },
+    "applies_to": {
+      "type": "object",
+      "description": "Specifies which components, processes, or setpoints this rule applies to.",
+      "properties": {
+        "component_types": { "type": "array", "items": { "type": "string" } },
+        "setpoint_names": { "type": "array", "items": { "type": "string" } },
+        "processes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "description": "The event that causes this rule to be evaluated.",
+      "properties": {
+        "event": {
+          "type": "string",
+          "enum": ["WRITE", "READ_UPDATE", "CONFIG_CHANGE", "NETWORK_ALERT"]
+        }
+      },
+      "required": ["event"]
+    },
+    "conditions": {
+      "type": "object",
+      "description": "The logical conditions that must be met for the rule to fire.",
+      "properties": {
+        "logic": {
+          "type": "string",
+          "enum": ["all", "any"],
+          "description": "Determines if all or any of the clauses must be true."
+        },
+        "clauses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "metric": {
+                "type": "string",
+                "enum": ["percent_change", "absolute", "roc", "frequency", "flatline", "consistency", "interlock", "authz"]
+              },
+              "operator": {
+                "type": "string",
+                "enum": [">", ">=", "<", "<=", "==", "!=", "in", "not_in", "exists"]
+              },
+              "value": {
+                "type": ["number", "string", "array", "object"]
+              },
+              "window": {
+                "type": "string",
+                "description": "Time window for metrics like frequency or ROC (e.g., '30s', '5m')."
+              }
+            },
+            "required": ["metric", "operator", "value"]
+          }
+        }
+      },
+      "required": ["logic", "clauses"]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["info", "alert", "critical"]
+    },
+    "actions": {
+      "type": "array",
+      "description": "Automated actions to take when the rule fires.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "params": { "type": "object" }
+        },
+        "required": ["type"]
+      }
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "source": {
+      "type": "string",
+      "description": "Where the rule originated from (e.g., 'LLM_AUTOGEN')."
+    },
+    "version": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "rationale": { "type": "string", "description": "Explanation of why the rule is important." },
+        "notes": { "type": "string" },
+        "mitre_tags": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "required": ["id", "name", "applies_to", "trigger", "conditions", "severity", "enabled"]
+}

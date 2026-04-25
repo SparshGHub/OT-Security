@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 83% 4%;
+    --foreground: 210 20% 98%;
+
+    --card: 222 83% 4%;
+    --card-foreground: 210 20% 98%;
+ 
+    --popover: 222 83% 4%;
+    --popover-foreground: 210 20% 98%;
+ 
+    --primary: 210 20% 98%;
+    --primary-foreground: 222 83% 4%;
+ 
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 20% 98%;
+ 
+    --muted: 215 28% 17%;
+    --muted-foreground: 218 11% 65%;
+ 
+    --accent: 215 28% 17%;
+    --accent-foreground: 210 20% 98%;
+ 
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 215 20% 65%;
+ 
+    --radius: 0.5rem;
+  }
+ 
+  .dark {
+    --background: 222 83% 4%;
+    --foreground: 210 20% 98%;
+ 
+    --card: 222 83% 4%;
+    --card-foreground: 210 20% 98%;
+ 
+    --popover: 222 83% 4%;
+    --popover-foreground: 210 20% 98%;
+ 
+    --primary: 210 20% 98%;
+    --primary-foreground: 222 83% 4%;
+ 
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 20% 98%;
+ 
+    --muted: 215 28% 17%;
+    --muted-foreground: 218 11% 65%;
+ 
+    --accent: 215 28% 17%;
+    --accent-foreground: 210 20% 98%;
+ 
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 20% 98%;
+ 
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 215 20% 65%;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ---- Attack glow animation ---- */
+@keyframes glow-red {
+  0%, 100% {
+    box-shadow: 0 0 6px 2px rgba(239, 68, 68, 0.4);
+    border-color: rgba(239, 68, 68, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 18px 6px rgba(239, 68, 68, 0.9);
+    border-color: rgba(239, 68, 68, 1);
+  }
+}
+
+.animate-glow-red {
+  animation: glow-red 1.2s ease-in-out infinite;
+}

@@ -1,0 +1,121 @@
+
+[
+  {
+    "id": "m1a9b8e0-3c7f-4b1e-8e3b-9e4a3a3d2c1d",
+    "name": "Playbook: Critical Drum Level Anomaly",
+    "applies_to": {
+      "rule_ids": [
+        "b1a9b8e0-3c7f-4b1e-8e3b-9e4a3a3d2c1d",
+        "c2d4e8f0-1a2b-3c4d-5e6f-7a8b9c0d1e2f"
+      ]
+    },
+    "steps": [
+      {
+        "order": 1,
+        "action": "VERIFY_SENSOR_READINGS",
+        "operator_notes": "Cross-check drum level with redundant sensors and physical sight glass if available."
+      },
+      {
+        "order": 2,
+        "action": "ISOLATE_CONTROLLER_LOGIC",
+        "operator_notes": "Place the drum level controller in manual mode to prevent further automatic changes."
+      },
+      {
+        "order": 3,
+        "action": "MANUAL_LEVEL_CORRECTION",
+        "operator_notes": "Manually adjust feedwater and blowdown valves to return level to safe operating band (50-60%)."
+      },
+      {
+        "order": 4,
+        "action": "INVESTIGATE_ROOT_CAUSE",
+        "operator_notes": "Once stable, investigate the source of the unauthorized or incorrect setpoint write. Review access logs for the controller."
+      }
+    ],
+    "severity_scope": [
+      "critical"
+    ],
+    "regulatory_refs": [],
+    "version": "v1",
+    "metadata": {
+      "notes": "Immediate action required to prevent turbine damage or boiler failure."
+    }
+  },
+  {
+    "id": "m2d4e8f0-1a2b-3c4d-5e6f-7a8b9c0d1e2f",
+    "name": "Playbook: Turbine Overspeed Protection",
+    "applies_to": {
+      "rule_ids": [
+        "d3e5f8a1-b2c3-4d5e-6f7a-8b9c0d1e2f3a"
+      ]
+    },
+    "steps": [
+      {
+        "order": 1,
+        "action": "CONFIRM_WRITE_BLOCK",
+        "operator_notes": "Ensure the malicious setpoint write was blocked by the system as per the rule action."
+      },
+      {
+        "order": 2,
+        "action": "VALIDATE_CURRENT_SPEED",
+        "operator_notes": "Check the current turbine speed on primary and backup tachometers to ensure it is within safe limits."
+      },
+      {
+        "order": 3,
+        "action": "REQUIRE_DUAL_AUTH",
+        "operator_notes": "Implement dual authorization for any further changes to the turbine controller for the next 24 hours."
+      },
+      {
+        "order": 4,
+        "action": "CREATE_INCIDENT_TICKET",
+        "operator_notes": "Log a high-priority cybersecurity incident, flagging the source IP of the failed write attempt."
+      }
+    ],
+    "severity_scope": [
+      "critical"
+    ],
+    "regulatory_refs": [],
+    "version": "v1",
+    "metadata": {
+      "notes": "This is a critical safety event. Follow all plant-specific turbine safety procedures."
+    }
+  },
+  {
+    "id": "m3e5f8a1-b2c3-4d5e-6f7a-8b9c0d1e2f3a",
+    "name": "Playbook: Unauthorized Write Source",
+    "applies_to": {
+      "rule_ids": [
+        "e4f6a8b1-c3d4-5e6f-7a8b-9c0d1e2f3a4b"
+      ]
+    },
+    "steps": [
+      {
+        "order": 1,
+        "action": "IDENTIFY_SOURCE",
+        "operator_notes": "Check audit logs for the source IP address or hostname that triggered the alert."
+      },
+      {
+        "order": 2,
+        "action": "VERIFY_INTENT",
+        "operator_notes": "Contact the user or department associated with the source to determine if the write was intentional or a result of misconfiguration/compromise."
+      },
+      {
+        "order": 3,
+        "action": "ISOLATE_IF_MALICIOUS",
+        "operator_notes": "If the activity is confirmed malicious or unauthorized, disconnect the source device from the network."
+      },
+      {
+        "order": 4,
+        "action": "REVIEW_FIREWALL_RULES",
+        "operator_notes": "Check firewall and switch ACLs to ensure the principle of least privilege is enforced for write access to controllers."
+      }
+    ],
+    "severity_scope": [
+      "alert"
+    ],
+    "regulatory_refs": [],
+    "version": "v1",
+    "metadata": {
+      "notes": "Focuses on identifying and containing the source of unauthorized commands."
+    }
+  }
+]

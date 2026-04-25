@@ -1,0 +1,82 @@
+
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Mitigation Playbook Schema",
+  "description": "Defines the structure for a mitigation playbook in response to a security event or triggered rule.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the mitigation playbook."
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for the playbook."
+    },
+    "applies_to": {
+      "type": "object",
+      "description": "Criteria for when this playbook should be considered.",
+      "properties": {
+        "component_types": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Component types this playbook is relevant for."
+        },
+        "processes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Plant processes this playbook is relevant for."
+        },
+        "rule_ids": {
+          "type": "array",
+          "items": { "type": "string", "format": "uuid" },
+          "description": "Specific rule IDs that can trigger this playbook."
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "An ordered list of actions to take.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "order": { "type": "integer" },
+          "action": { "type": "string", "description": "A codified action, e.g., 'ISOLATE_COMPONENT_NETWORK'." },
+          "operator_notes": { "type": "string", "description": "Guidance for the human operator performing the action." }
+        },
+        "required": ["order", "action", "operator_notes"]
+      }
+    },
+    "severity_scope": {
+      "type": "array",
+      "description": "The event severities this playbook applies to.",
+      "items": {
+        "type": "string",
+        "enum": ["info", "alert", "critical"]
+      }
+    },
+    "regulatory_refs": {
+      "type": "array",
+      "description": "References to regulatory or compliance standards.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "body": { "type": "string" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the playbook."
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "notes": { "type": "string" }
+      }
+    }
+  },
+  "required": ["id", "name", "applies_to", "steps", "severity_scope", "version"]
+}
