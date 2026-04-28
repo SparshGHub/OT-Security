@@ -64,12 +64,4 @@ Once all services are up and running:
     - The bottom panel will display a timeline of events that occurred as a result of the attack, including which security rules were triggered.
     - You can click on a triggered rule to view the recommended mitigation playbook in a modal window.
 
-## Project Structure
 
-- `backend/`: The Node.js (Express) API server.
-- `frontend/`: The React (Next.js) web application.
-- `sql/`: Contains the PostgreSQL database schema and seed data.
-- `topology/`: JSON schema and instance data for the plant's DCS topology.
-- `rules/`: JSON schema and the auto-generated library of detection rules.
-- `mitigations/`: JSON schema and the auto-generated library of mitigation playbooks.
-- `docker-compose.yml`: Orchestrates all the services.
