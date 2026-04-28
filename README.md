@@ -35,7 +35,7 @@ Review the `.env` file and make sure to change the `JWT_SECRET` and `DB_PASSWORD
 This is the recommended way to run the application. From the root directory of the project, run the following command:
 
 ```bash
-docker-compose up --build
+docker compose up -d --build
 ```
 
 This command will:
