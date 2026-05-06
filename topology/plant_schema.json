@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DCS Topology Schema for Thermal Power Plant",
+  "description": "Defines the structure for the entire plant topology, including processes, components, setpoints, and connectivity.",
+  "type": "object",
+  "properties": {
+    "processes": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/process" }
+    },
+    "components": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/component" }
+    },
+    "setpoints": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/setpoint" }
+    },
+    "connectivity": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/connectivity" }
+    }
+  },
+  "definitions": {
+    "process": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "sequence": { "type": "integer" },
+        "description": { "type": "string" }
+      },
+      "required": ["id", "name", "sequence"]
+    },
+    "component": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "process_id": { "type": ["string", "null"] },
+        "name": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": [
+            "DCS_Controller", "IOModule", "Field_Device_Sensor", "Field_Device_Actuator",
+            "PLC", "RTU", "Safety_PLC_ESD", "Operator_HMI", "Engineering_Station",
+            "Alarm_Server", "Historian", "Protocol_Gateway", "Network_Switch",
+            "Firewall", "Time_Server", "Power_Redundancy_Unit"
+          ]
+        },
+        "network_zone": {
+          "type": "string",
+          "enum": ["Field", "Control", "DMZ", "Enterprise"]
+        },
+        "ip": { "type": ["string", "null"] },
+        "criticality": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "capabilities": { "type": "array", "items": { "type": "string" } },
+        "attack_surface": { "type": "array", "items": { "type": "string" } },
+        "metadata": { "type": "object" },
+        "redundant": { "type": "boolean", "default": false }
+      },
+      "required": ["id", "name", "type", "network_zone", "criticality"]
+    },
+    "setpoint": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "component_id": { "type": "string" },
+        "name": { "type": "string" },
+        "value": { "type": ["string", "number"] },
+        "units": { "type": "string" },
+        "min": { "type": ["number", "null"] },
+        "max": { "type": ["number", "null"] },
+        "roc_limit": { "type": ["number", "null"] },
+        "deadband": { "type": ["number", "null"] },
+        "last_updated": { "type": "string", "format": "date-time" }
+      },
+      "required": ["component_id", "name", "value"]
+    },
+    "connectivity": {
+      "type": "object",
+      "properties": {
+        "from_component_id": { "type": "string" },
+        "to_component_id": { "type": "string" },
+        "protocol": {
+          "type": "string",
+          "enum": ["ModbusTCP", "OPC-UA", "Profinet", "EtherNet/IP", "DNP3", "Other"]
+        },
+        "direction": { "type": "string", "enum": ["uni", "bi"] },
+        "metadata": { "type": "object" }
+      },
+      "required": ["from_component_id", "to_component_id", "protocol", "direction"]
+    }
+  }
+}
+

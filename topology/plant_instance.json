@@ -1,0 +1,138 @@
+
+{
+  "processes": [
+    {
+      "id": "p1",
+      "name": "Coal Handling",
+      "sequence": 1,
+      "description": "Prepares and delivers coal to the boiler."
+    },
+    {
+      "id": "p2",
+      "name": "Boiler",
+      "sequence": 2,
+      "description": "Generates high-pressure steam by burning fuel."
+    },
+    {
+      "id": "p3",
+      "name": "Steam Turbine",
+      "sequence": 3,
+      "description": "Converts steam energy into mechanical rotation."
+    },
+    {
+      "id": "p4",
+      "name": "Condenser & Cooling",
+      "sequence": 4,
+      "description": "Cools steam back into water."
+    },
+    {
+      "id": "p5",
+      "name": "Feedwater System",
+      "sequence": 5,
+      "description": "Pumps water back to the boiler."
+    }
+  ],
+  "components": [
+    {
+      "id": "c_boiler_plc",
+      "process_id": "p2",
+      "name": "Boiler Control PLC",
+      "type": "DCS_Controller",
+      "network_zone": "Control",
+      "ip": "192.168.1.10",
+      "criticality": "critical"
+    },
+    {
+      "id": "c_drum_sensor",
+      "process_id": "p2",
+      "name": "Drum Level Sensor",
+      "type": "Field_Device_Sensor",
+      "network_zone": "Field",
+      "ip": "192.168.2.10",
+      "criticality": "critical"
+    },
+    {
+      "id": "c_turbine_plc",
+      "process_id": "p3",
+      "name": "Turbine Control PLC",
+      "type": "DCS_Controller",
+      "network_zone": "Control",
+      "ip": "192.168.1.11",
+      "criticality": "critical"
+    },
+    {
+      "id": "c_load_sensor",
+      "process_id": "p3",
+      "name": "Turbine Load Sensor",
+      "type": "Field_Device_Sensor",
+      "network_zone": "Field",
+      "ip": "192.168.2.11",
+      "criticality": "high"
+    },
+    {
+      "id": "c_boiler_hmi",
+      "process_id": "p2",
+      "name": "BOILER-HMI",
+      "type": "Operator_HMI",
+      "network_zone": "Control",
+      "ip": "192.168.1.100",
+      "criticality": "high"
+    },
+    {
+      "id": "c_turbine_hmi",
+      "process_id": "p3",
+      "name": "TCS-HMI",
+      "type": "Operator_HMI",
+      "network_zone": "Control",
+      "ip": "192.168.1.101",
+      "criticality": "high"
+    },
+    {
+      "id": "c_ews",
+      "process_id": null,
+      "name": "Engineering Workstation",
+      "type": "Engineering_Station",
+      "network_zone": "Enterprise",
+      "ip": "10.10.10.5",
+      "criticality": "medium"
+    },
+    {
+      "id": "c_historian",
+      "process_id": null,
+      "name": "Plant Historian",
+      "type": "Historian",
+      "network_zone": "Enterprise",
+      "ip": "10.10.10.20",
+      "criticality": "medium"
+    }
+  ],
+  "setpoints": [
+    {
+      "component_id": "c_boiler_plc",
+      "name": "Drum Level SP",
+      "value": "56.0",
+      "units": "%",
+      "min": 40,
+      "max": 70
+    },
+    {
+      "component_id": "c_turbine_plc",
+      "name": "Turbine Load SP",
+      "value": "215.0",
+      "units": "MW",
+      "min": 0,
+      "max": 250
+    }
+  ],
+  "connectivity": [
+    { "from_component_id": "c_drum_sensor", "to_component_id": "c_boiler_plc", "protocol": "Profinet", "direction": "uni" },
+    { "from_component_id": "c_load_sensor", "to_component_id": "c_turbine_plc", "protocol": "Profinet", "direction": "uni" },
+    { "from_component_id": "c_boiler_plc", "to_component_id": "c_boiler_hmi", "protocol": "OPC-UA", "direction": "bi" },
+    { "from_component_id": "c_turbine_plc", "to_component_id": "c_turbine_hmi", "protocol": "OPC-UA", "direction": "bi" },
+    { "from_component_id": "c_ews", "to_component_id": "c_boiler_plc", "protocol": "EtherNet/IP", "direction": "bi" },
+    { "from_component_id": "c_ews", "to_component_id": "c_turbine_plc", "protocol": "EtherNet/IP", "direction": "bi" },
+    { "from_component_id": "c_boiler_plc", "to_component_id": "c_historian", "protocol": "OPC-UA", "direction": "uni" },
+    { "from_component_id": "c_turbine_plc", "to_component_id": "c_historian", "protocol": "OPC-UA", "direction": "uni" }
+  ]
+}
+

@@ -1,0 +1,319 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{listings}
+
+% Define color scheme
+\definecolor{primary}{HTML}{1F77B4}
+\definecolor{secondary}{HTML}{FF7F0E}
+\definecolor{accent}{HTML}{2CA02C}
+\definecolor{lightgray}{HTML}{F8F9FA}
+\definecolor{darkgray}{HTML}{2C3E50}
+\definecolor{boxbg}{HTML}{ECF0F1}
+
+% Configure hyperlinks
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    urlcolor=primary,
+    filecolor=primary,
+    bookmarksnumbered=true
+}
+
+% Configure listings for code
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=true,
+    backgroundcolor=\color{lightgray},
+    keywordstyle=\color{primary}\bfseries,
+    commentstyle=\color{darkgray}\itshape,
+    stringstyle=\color{accent},
+    columns=flexible,
+    framexleftmargin=5pt,
+    framexrightmargin=5pt,
+    framxtopmargin=5pt,
+    framxbottommargin=5pt,
+    frame=single,
+    rulecolor=\color{primary}
+}
+
+% Enhanced section formatting
+\titleformat{\section}
+{\normalfont\Large\bfseries\color{primary}}
+{\thesection}{1em}
+{\color{primary}\hrule\smallskip}[\smallskip\hrule]
+
+\titleformat{\subsection}
+{\normalfont\large\bfseries\color{darkgray}}
+{\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+{\normalfont\normalsize\bfseries\color{darkgray}}
+{\thesubsubsection}{1em}{}
+
+% Page header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small OT Cybersecurity Tabletop Simulator}
+\fancyhead[R]{\small Progress Report}
+\fancyfoot[C]{\small Page \thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.5pt}
+
+% Custom environment for key highlights
+\newtcolorbox{highlight}{
+    colback=boxbg,
+    colframe=primary,
+    boxrule=1.5pt,
+    left=10pt,
+    right=10pt,
+    top=10pt,
+    bottom=10pt,
+    arc=5pt
+}
+
+% Title formatting
+\makeatletter
+\renewcommand{\maketitle}{
+    \begin{center}
+        \vspace*{-1cm}
+        {\color{primary}\hrule\vspace{0.3cm}}
+        {\Huge\bfseries\color{primary} \@title}
+        {\vspace{0.3cm}\color{primary}\hrule}
+        \vspace{0.8cm}
+        {\Large\color{darkgray} Technical Progress Documentation}
+        \vspace{1.5cm}
+    \end{center}
+}
+\makeatother
+
+\title{Progress Report\\
+Operational Technology (OT) Cybersecurity Tabletop Simulator\\
+Thermal Power Plant Case Study}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\onehalfspacing
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+\begin{highlight}
+This report documents the latest technical progress achieved in the development of the Operational Technology (OT) Cybersecurity Tabletop Simulator. The system models a thermal power plant Distributed Control System (DCS) and enables interactive cyber-attack simulation, rule evaluation, severity classification, and mitigation tracking.
+\end{highlight}
+
+The recent phase focused on strengthening attack modeling consistency, improving feasibility validation, enhancing severity computation, and expanding mitigation navigation capabilities. These improvements increase architectural robustness, simulation realism, and operational training value.
+
+\section{Expanded Attack Modeling Framework}
+
+\subsection{Unified Attack Catalogs}
+
+A major enhancement involved consolidating and synchronizing attack definitions across the backend and frontend layers.
+
+\begin{itemize}[leftmargin=1.5em]
+\item Ensured complete one-to-one mapping between \texttt{COMPONENT\_TO\_ATTACKS} and \texttt{ATTACK\_TO\_SOURCES} to eliminate dangling or unmapped attack definitions.
+\item Added source mappings for previously unmapped attacks including Spoofing, Signal Jamming, Command Injection, Replay Attack, Memory Manipulation, Unauthorized Access, Service Overload, Buffer Overflow, Configuration Tampering, Data Exfiltration, Ransomware, Privilege Escalation, Data Tampering, Credential Theft, Remote Desktop Takeover, Phishing, Keylogging, Display Manipulation, and Screen Overlay Attack.
+\item Mirrored attack constants in both backend and frontend codebases to guarantee catalog consistency and eliminate validation drift.
+\end{itemize}
+
+\begin{tcolorbox}[colback=lightgray, colframe=accent, boxrule=1pt, arc=3pt, left=8pt, right=8pt]
+\textbf{\color{accent}Key Outcome:} This synchronization ensures that simulation UI options and backend validation logic remain aligned under all circumstances.
+\end{tcolorbox}
+
+\subsection{Simulation UI Relaxation}
+
+The simulation interface was modified to expose the full union of attack types and source roles for every component.
+
+\begin{itemize}[leftmargin=1.5em]
+\item Removed frontend pre-filtering by component type or attack type.
+\item Deferred feasibility validation entirely to backend logic.
+\item Introduced automatic default selections for attack and source to preserve user experience fluidity.
+\end{itemize}
+
+This design allows operators to attempt any attack combination while ensuring invalid selections are deterministically blocked by backend validation.
+
+\section{Feasibility Validation Engine}
+
+The feasibility validation mechanism was strengthened to enforce structured and deterministic evaluation of attack attempts.
+
+\subsection{Normalization and Matching}
+
+The \texttt{validateAttackFeasibility} service now implements a robust validation pipeline:
+
+\begin{itemize}[leftmargin=1.5em]
+\item Normalizes attack types, source roles, and network zones.
+\item Performs case-insensitive matching to reduce false negatives caused by casing inconsistencies.
+\item Validates combinations against:
+  \begin{itemize}
+  \item \texttt{COMPONENT\_TO\_ATTACKS}
+  \item \texttt{ATTACK\_TO\_SOURCES}
+  \item \texttt{ZONE\_TO\_SOURCES}
+  \end{itemize}
+\item Produces blocking violations for missing or mismatched mappings.
+\end{itemize}
+
+\begin{tcolorbox}[colback=lightgray, colframe=secondary, boxrule=1pt, arc=3pt, left=8pt, right=8pt]
+\textbf{\color{secondary}Note:} Invalid attack attempts now generate \texttt{ATTACK\_BLOCKED} events, ensuring traceability even for infeasible scenarios.
+\end{tcolorbox}
+
+\section{Weighted Criticality Scoring}
+
+Severity classification was redesigned to reflect both contextual and asset-based risk.
+
+\subsection{DeriveCriticalSeverity Function}
+
+A new function, \texttt{deriveCriticalSeverity}, computes a severity score in the range $[0, 3]$ based on:
+
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{Component criticality} (primary weight, user-defined at topology design time).
+\item \textbf{Rule severity} (secondary weight).
+\item \textbf{Control-plane type bonus} for high-impact asset classes (sensor, actuator, PLC, DCS controller, HMI).
+\end{itemize}
+
+\subsubsection{Severity Level Mapping}
+
+The computed score maps to severity levels as follows:
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\toprule
+\textbf{Severity Level} & \textbf{Score Range} & \textbf{Impact} \\
+\midrule
+\cellcolor{lightgray}\textbf{Critical} & $\geq 2.1$ & Immediate action required \\
+\cellcolor{lightgray}\textbf{Alert} & $\geq 0.9$ & Monitor and respond \\
+\cellcolor{lightgray}\textbf{Info} & $< 0.9$ & Informational only \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This approach ensures that attacks on critical or high-value components are surfaced prominently in timelines even when rule severity alone would be moderate.
+
+\section{Simulation Pipeline Enhancements}
+
+The simulation service was updated to integrate feasibility and weighted scoring into event generation.
+
+\begin{itemize}[leftmargin=1.5em]
+\item Derived severity is now applied uniformly to:
+  \begin{itemize}
+  \item \texttt{ATTACK\_BLOCKED}
+  \item \texttt{ATTACK\_RECORDED}
+  \item \texttt{RULE\_TRIGGER}
+  \end{itemize}
+\item Simulation responses now include feasibility results alongside events, triggered rules, and mitigation data.
+\item Event payload schemas remain stable, preserving backward compatibility.
+\end{itemize}
+
+These updates improve risk signaling and maintain deterministic behavior across the simulation lifecycle.
+
+\section{Mitigation Navigation Improvements}
+
+Mitigation workflows were expanded to enhance operator guidance and investigation flow.
+
+\begin{itemize}[leftmargin=1.5em]
+\item Introduced per-event mitigation detail pages.
+\item Added action buttons in timeline rows to open mitigation details in new tabs.
+\item Unified timeline row components across dashboard and full timeline views.
+\item Ensured UI severity tags reflect backend-derived severity consistently.
+\end{itemize}
+
+\begin{highlight}
+These improvements enhance usability while preserving backend authority over risk classification, ensuring operators and analysts have transparent access to mitigation workflows and severity rationale.
+\end{highlight}
+
+\section{System-Level Outcomes}
+
+The cumulative impact of these improvements is summarized below:
+
+\subsection{User Experience}
+
+Operators can now select any attack and source combination. Infeasible attempts are transparently blocked, while valid ones trigger rule evaluation and mitigation workflows. This flexibility improves training realism and operator confidence.
+
+\subsection{Risk Signaling}
+
+Severity now reflects both rule logic and asset criticality, ensuring high-value components surface prominently during incident analysis and prioritize response actions effectively.
+
+\subsection{Architectural Consistency}
+
+Attack catalogs are synchronized across system layers, eliminating drift between UI and backend validation logic. This ensures deterministic behavior and reduces debugging complexity.
+
+\subsection{Mitigation Traceability}
+
+Dedicated mitigation pages improve structured response handling and support investigative workflows, enabling comprehensive post-incident analysis and training review.
+
+\section{Future Work: Concurrent Multi-User DCS Sessions}
+
+The next phase will introduce multi-user concurrency with shared session state, transforming the simulator into a collaborative training platform.
+
+\subsection{Objective}
+
+Enable multiple authenticated users to access the same DCS simulation session concurrently and observe:
+
+\begin{enumerate}[leftmargin=1.5em]
+\item Live attack simulations initiated by any user.
+\item Timeline updates in real time.
+\item Mitigation progress updates as steps are marked complete.
+\end{enumerate}
+
+\subsection{Proposed Architecture}
+
+\begin{itemize}[leftmargin=1.5em]
+\item Introduce session-scoped simulation contexts persisted in the database.
+\item Implement WebSocket-based real-time broadcasting of:
+  \begin{itemize}
+  \item New attack events
+  \item Mitigation step updates
+  \item Attack resolution state changes
+  \end{itemize}
+\item Maintain consistency via optimistic locking or transaction-scoped updates for mitigation step progression.
+\item Introduce a state machine governing mitigation sequencing to ensure steps are completed in order before marking an attack as mitigated.
+\end{itemize}
+
+\subsection{Collaborative Workflow Scenario}
+
+In a collaborative training session:
+
+\begin{enumerate}[leftmargin=1.5em]
+\item A central operator triggers a simulation.
+\item Multiple users log into the same session.
+\item Each participant views the attack and associated mitigations.
+\item Mitigation steps are executed physically and marked complete within the system.
+\item Once all required steps are completed in sequence, the attack is marked as mitigated in the timeline.
+\end{enumerate}
+
+\begin{tcolorbox}[colback=boxbg, colframe=primary, boxrule=1.5pt, arc=5pt, left=10pt, right=10pt, top=10pt, bottom=10pt]
+\textbf{\color{primary}Impact:} This extension transforms the simulator into a collaborative incident-response training platform suitable for coordinated team exercises and large-scale security operations drills.
+\end{tcolorbox}
+
+\section{Conclusion}
+
+The recent enhancements significantly strengthen the simulator's modeling integrity, validation rigor, severity realism, and mitigation usability. The system now provides:
+
+\begin{highlight}
+\begin{itemize}[leftmargin=1.5em, topsep=0pt, partopsep=0pt]
+\item Consistent cross-layer attack definitions
+\item Deterministic feasibility validation
+\item Asset-aware severity scoring
+\item Structured mitigation navigation
+\end{itemize}
+\end{highlight}
+
+The proposed concurrent multi-user extension will elevate the simulator from a single-operator tabletop tool to a collaborative OT incident-response training platform. This positions the system as a critical asset for operator education, incident response preparation, and cybersecurity resilience in industrial control environments.
+
+\end{document}

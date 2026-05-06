@@ -1,0 +1,35 @@
+# Never send Git history to Docker
+.git
+**/.git
+
+# Editor/OS stuff
+.DS_Store
+*.swp
+*.log
+
+# Node outputs across the monorepo
+node_modules
+**/node_modules
+npm-debug.log*
+yarn.lock
+pnpm-lock.yaml
+
+# Next.js build artifacts
+frontend/.next
+frontend/out
+frontend/.turbo
+frontend/.vercel
+frontend/.cache
+
+# Backend build artifacts
+backend/dist
+
+# Test/reports
+coverage
+**/__tests__
+**/__mocks__
+
+# Env files (compose reads .env, no need in build context)
+.env
+**/.env
+

@@ -1,0 +1,422 @@
+{
+  "schema_version": "1.0",
+  "name": "OT-SEC Connection Validation Rules",
+  "description": "Baseline ruleset to validate user-created connections between OT components on the topology canvas, using component type + network zone + protocol semantics. Includes strict Purdue-style segmentation and a relaxed training profile.",
+  "evaluation": {
+    "mode": "first_match_wins",
+    "sort_by": ["priority_desc"]
+  },
+  "profiles": {
+    "strict_purdue": {
+      "description": "Strict segmentation: no direct Enterprise↔Control paths; use DMZ. Blocks cross-zone links that violate common Purdue/NIST guidance.",
+      "defaults": {
+        "unknown_protocol_policy": "warn",
+        "unknown_direction_policy": "warn"
+      }
+    },
+    "relaxed_training": {
+      "description": "Training/lab profile: allows some cross-zone direct links but returns warnings recommending DMZ segmentation.",
+      "defaults": {
+        "unknown_protocol_policy": "warn",
+        "unknown_direction_policy": "warn"
+      }
+    }
+  },
+  "enums": {
+    "zones": ["Field", "Control", "DMZ", "Enterprise"],
+    "directions": ["uni", "bi"],
+    "protocols": ["Profinet", "OPC-UA", "EtherNet/IP", "ModbusTCP", "DNP3", "Other"],
+    "component_types": [
+      "DCS_Controller",
+      "PLC",
+      "RTU",
+      "Safety_PLC_ESD",
+      "IOModule",
+      "Field_Device_Sensor",
+      "Field_Device_Actuator",
+      "Operator_HMI",
+      "Engineering_Station",
+      "Historian",
+      "Alarm_Server",
+      "Protocol_Gateway",
+      "Network_Switch",
+      "Firewall",
+      "Time_Server",
+      "Power_Redundancy_Unit"
+    ]
+  },
+  "groups": {
+    "CONTROLLERS": ["DCS_Controller", "PLC", "RTU", "Safety_PLC_ESD"],
+    "FIELD_DEVICES": ["Field_Device_Sensor", "Field_Device_Actuator", "IOModule"],
+    "SUPERVISORY": ["Operator_HMI", "Alarm_Server"],
+    "ENGINEERING": ["Engineering_Station"],
+    "DATA_SERVERS": ["Historian"],
+    "NETWORK_INFRA": ["Network_Switch", "Firewall", "Protocol_Gateway", "Time_Server", "Power_Redundancy_Unit"]
+  },
+  "rules": [
+    {
+      "id": "R001_DENY_SELF_LOOP",
+      "priority": 1000,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "deny",
+      "match": { "same_component": true },
+      "error": {
+        "code": "SELF_LOOP",
+        "message": "A component cannot be connected to itself."
+      }
+    },
+    {
+      "id": "R010_DENY_FIELD_TO_ENTERPRISE_ANY",
+      "priority": 900,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "deny",
+      "match": {
+        "from_zones": ["Field"],
+        "to_zones": ["Enterprise"]
+      },
+      "error": {
+        "code": "ZONE_VIOLATION_FIELD_ENTERPRISE",
+        "message": "Direct connections between Field and Enterprise zones are not allowed. Route via Control and/or DMZ using appropriate boundary controls."
+      }
+    },
+    {
+      "id": "R011_DENY_ENTERPRISE_TO_FIELD_ANY",
+      "priority": 900,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "deny",
+      "match": {
+        "from_zones": ["Enterprise"],
+        "to_zones": ["Field"]
+      },
+      "error": {
+        "code": "ZONE_VIOLATION_ENTERPRISE_FIELD",
+        "message": "Direct connections between Enterprise and Field zones are not allowed. Insert DMZ boundary controls and route through Control."
+      }
+    },
+    {
+      "id": "R020_DENY_ENTERPRISE_TO_CONTROL_STRICT",
+      "priority": 850,
+      "applies_to_profiles": ["strict_purdue"],
+      "action": "deny",
+      "match": {
+        "from_zones": ["Enterprise"],
+        "to_zones": ["Control"]
+      },
+      "error": {
+        "code": "ZONE_VIOLATION_ENTERPRISE_CONTROL",
+        "message": "Direct Enterprise→Control connections are not allowed in strict mode. Use a DMZ boundary (e.g., firewall/jump host) and split into Enterprise→DMZ and DMZ→Control."
+      },
+      "references": [
+        "NIST SP 800-82 Rev.2: Firewall with DMZ between corporate and control networks; no direct corporate→control path required (Section 5.5.4)."
+      ]
+    },
+    {
+      "id": "R021_WARN_ENTERPRISE_TO_CONTROL_RELAXED",
+      "priority": 850,
+      "applies_to_profiles": ["relaxed_training"],
+      "action": "warn",
+      "match": {
+        "from_zones": ["Enterprise"],
+        "to_zones": ["Control"]
+      },
+      "warning": {
+        "code": "ZONE_WARNING_ENTERPRISE_CONTROL",
+        "message": "Enterprise→Control direct links are discouraged. Recommended: introduce a DMZ segment and place shared-access systems in the DMZ."
+      },
+      "references": [
+        "NIST SP 800-82 Rev.2 recommends DMZ to avoid direct corporate→control paths."
+      ]
+    },
+    {
+      "id": "R030_DENY_DMZ_TO_FIELD_ANY",
+      "priority": 820,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "deny",
+      "match": {
+        "from_zones": ["DMZ"],
+        "to_zones": ["Field"]
+      },
+      "error": {
+        "code": "ZONE_VIOLATION_DMZ_FIELD",
+        "message": "Direct DMZ→Field connections are not allowed. DMZ should interface with Control, not Field devices."
+      }
+    },
+    {
+      "id": "R031_DENY_FIELD_TO_DMZ_ANY",
+      "priority": 820,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "deny",
+      "match": {
+        "from_zones": ["Field"],
+        "to_zones": ["DMZ"]
+      },
+      "error": {
+        "code": "ZONE_VIOLATION_FIELD_DMZ",
+        "message": "Direct Field→DMZ connections are not allowed. Field devices should communicate with controllers in the Control zone."
+      }
+    },
+    {
+      "id": "R100_ALLOW_SENSOR_TO_CONTROLLER_FIELD_CONTROL",
+      "priority": 700,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "allow",
+      "match": {
+        "from_types_any_of": ["Field_Device_Sensor", "IOModule"],
+        "to_types_any_of": ["DCS_Controller", "PLC", "RTU", "Safety_PLC_ESD"],
+        "zone_pairs": [
+          { "from": "Field", "to": "Control" },
+          { "from": "Control", "to": "Control" }
+        ]
+      },
+      "constraints": {
+        "allowed_protocols": ["Profinet", "EtherNet/IP", "ModbusTCP", "Other"],
+        "preferred_directions": ["uni"],
+        "direction_policy": "warn_if_not_preferred"
+      },
+      "notes": {
+        "message": "Typical field-to-controller communications use industrial protocols (e.g., Profinet) and are often unidirectional from sensor to controller."
+      },
+      "references": [
+        "PROFINET is commonly used between controllers (PLC/DCS) and field devices (sensors/actuators)."
+      ]
+    },
+    {
+      "id": "R101_ALLOW_CONTROLLER_TO_ACTUATOR_FIELD_CONTROL",
+      "priority": 700,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "allow",
+      "match": {
+        "from_types_any_of": ["DCS_Controller", "PLC", "RTU", "Safety_PLC_ESD"],
+        "to_types_any_of": ["Field_Device_Actuator", "IOModule"],
+        "zone_pairs": [
+          { "from": "Control", "to": "Field" },
+          { "from": "Control", "to": "Control" }
+        ]
+      },
+      "constraints": {
+        "allowed_protocols": ["Profinet", "EtherNet/IP", "ModbusTCP", "Other"],
+        "preferred_directions": ["uni"],
+        "direction_policy": "warn_if_not_preferred"
+      },
+      "notes": {
+        "message": "Controller-to-actuator command flows are typically unidirectional from controller to actuator."
+      },
+      "references": [
+        "Fieldbus/industrial Ethernet commonly transports control data between controllers and field devices."
+      ]
+    },
+    {
+      "id": "R110_ALLOW_HMI_TO_CONTROLLER_CONTROL",
+      "priority": 650,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "allow",
+      "match": {
+        "from_types_any_of": ["Operator_HMI"],
+        "to_types_any_of": ["DCS_Controller", "PLC"],
+        "zone_pairs": [
+          { "from": "Control", "to": "Control" }
+        ]
+      },
+      "constraints": {
+        "allowed_protocols": ["OPC-UA", "EtherNet/IP", "ModbusTCP", "Other"],
+        "preferred_directions": ["bi"],
+        "direction_policy": "warn_if_not_preferred"
+      },
+      "notes": {
+        "message": "HMI systems typically subscribe to controller data and may issue authorized write commands depending on configuration."
+      },
+      "references": [
+        "OPC UA is widely used for data access between higher-layer applications (HMI/historian) and PLC/DCS controllers."
+      ]
+    },
+    {
+      "id": "R111_DENY_HMI_DIRECT_TO_FIELD",
+      "priority": 800,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "deny",
+      "match": {
+        "from_types_any_of": ["Operator_HMI"],
+        "to_types_any_of": ["Field_Device_Sensor", "Field_Device_Actuator", "IOModule"]
+      },
+      "error": {
+        "code": "TYPE_VIOLATION_HMI_TO_FIELD",
+        "message": "HMIs should not connect directly to field devices. HMIs should communicate with controllers in the Control zone, which in turn interface with field devices."
+      }
+    },
+    {
+      "id": "R120_ALLOW_ENGINEERING_TO_CONTROLLER_CONTROL",
+      "priority": 640,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "allow",
+      "match": {
+        "from_types_any_of": ["Engineering_Station"],
+        "to_types_any_of": ["DCS_Controller", "PLC", "Safety_PLC_ESD"],
+        "zone_pairs": [
+          { "from": "Control", "to": "Control" }
+        ]
+      },
+      "constraints": {
+        "allowed_protocols": ["EtherNet/IP", "OPC-UA", "Other"],
+        "preferred_directions": ["bi"],
+        "direction_policy": "warn_if_not_preferred"
+      },
+      "notes": {
+        "message": "Engineering stations may download logic/configurations and perform maintenance operations on controllers; keep within Control/engineering segments."
+      },
+      "references": [
+        "EtherNet/IP/TCP commonly used for workstation↔PLC interactions such as program download or table reads/writes."
+      ]
+    },
+    {
+      "id": "R121_WARN_ENGINEERING_FROM_ENTERPRISE_TO_CONTROL_RELAXED",
+      "priority": 630,
+      "applies_to_profiles": ["relaxed_training"],
+      "action": "warn",
+      "match": {
+        "from_types_any_of": ["Engineering_Station"],
+        "from_zones": ["Enterprise"],
+        "to_types_any_of": ["DCS_Controller", "PLC", "Safety_PLC_ESD"],
+        "to_zones": ["Control"]
+      },
+      "warning": {
+        "code": "ZONE_WARNING_EWS_ENTERPRISE",
+        "message": "Engineering Station in Enterprise connecting directly to Control is discouraged. Prefer placing engineering assets in Control or using a DMZ jump host."
+      }
+    },
+    {
+      "id": "R122_DENY_ENGINEERING_FROM_ENTERPRISE_TO_CONTROL_STRICT",
+      "priority": 630,
+      "applies_to_profiles": ["strict_purdue"],
+      "action": "deny",
+      "match": {
+        "from_types_any_of": ["Engineering_Station"],
+        "from_zones": ["Enterprise"],
+        "to_types_any_of": ["DCS_Controller", "PLC", "Safety_PLC_ESD"],
+        "to_zones": ["Control"]
+      },
+      "error": {
+        "code": "ZONE_VIOLATION_EWS_ENTERPRISE_STRICT",
+        "message": "In strict mode, Engineering Stations must not directly connect from Enterprise to Control. Use DMZ mediation or move Engineering Station into Control."
+      }
+    },
+    {
+      "id": "R130_ALLOW_CONTROLLER_TO_HISTORIAN",
+      "priority": 620,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "allow",
+      "match": {
+        "from_types_any_of": ["DCS_Controller", "PLC"],
+        "to_types_any_of": ["Historian"],
+        "zone_pairs": [
+          { "from": "Control", "to": "Enterprise" },
+          { "from": "Control", "to": "DMZ" },
+          { "from": "Control", "to": "Control" }
+        ]
+      },
+      "constraints": {
+        "allowed_protocols": ["OPC-UA", "Other"],
+        "preferred_directions": ["uni"],
+        "direction_policy": "warn_if_not_preferred"
+      },
+      "notes": {
+        "message": "Historians typically collect data from controllers; flows are usually read-oriented and can be modeled as controller→historian."
+      },
+      "references": [
+        "OPC UA Historical Access describes historians collecting from OPC UA servers and serving clients."
+      ]
+    },
+    {
+      "id": "R131_DENY_HISTORIAN_TO_CONTROLLER_WRITE_PATH",
+      "priority": 780,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "deny",
+      "match": {
+        "from_types_any_of": ["Historian"],
+        "to_types_any_of": ["DCS_Controller", "PLC", "Safety_PLC_ESD"]
+      },
+      "error": {
+        "code": "TYPE_VIOLATION_HISTORIAN_WRITE",
+        "message": "Historian systems should not directly connect to controllers for control actions. Historian links should be read/collection oriented."
+      }
+    },
+    {
+      "id": "R140_ALLOW_SWITCH_WITHIN_ZONE",
+      "priority": 400,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "allow",
+      "match": {
+        "from_types_any_of": ["Network_Switch"],
+        "to_types_any_of": [
+          "DCS_Controller",
+          "PLC",
+          "RTU",
+          "Safety_PLC_ESD",
+          "IOModule",
+          "Field_Device_Sensor",
+          "Field_Device_Actuator",
+          "Operator_HMI",
+          "Engineering_Station",
+          "Historian",
+          "Alarm_Server",
+          "Protocol_Gateway",
+          "Time_Server",
+          "Power_Redundancy_Unit",
+          "Firewall",
+          "Network_Switch"
+        ],
+        "same_zone_only": true
+      },
+      "constraints": {
+        "allowed_protocols": ["Other"],
+        "direction_policy": "ignore"
+      },
+      "notes": {
+        "message": "Switch links are intra-zone infrastructure connections. Prefer using 'Other' as protocol for infrastructure edges."
+      }
+    },
+    {
+      "id": "R150_ALLOW_FIREWALL_ADJACENT_ZONES_ONLY",
+      "priority": 500,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "allow",
+      "match": {
+        "from_types_any_of": ["Firewall"],
+        "to_types_any_of": [
+          "Network_Switch",
+          "Protocol_Gateway",
+          "Historian",
+          "Engineering_Station",
+          "DCS_Controller",
+          "PLC",
+          "Operator_HMI"
+        ],
+        "zone_pairs": [
+          { "from": "Enterprise", "to": "DMZ" },
+          { "from": "DMZ", "to": "Control" },
+          { "from": "Control", "to": "Field" },
+          { "from": "DMZ", "to": "Enterprise" },
+          { "from": "Control", "to": "DMZ" },
+          { "from": "Field", "to": "Control" }
+        ]
+      },
+      "constraints": {
+        "allowed_protocols": ["Other"],
+        "direction_policy": "ignore"
+      },
+      "notes": {
+        "message": "Firewalls are intended to enforce segmentation between adjacent zones. Model firewall edges as infrastructure links."
+      }
+    },
+    {
+      "id": "R900_DEFAULT_DENY",
+      "priority": 1,
+      "applies_to_profiles": ["strict_purdue", "relaxed_training"],
+      "action": "deny",
+      "match": { "always": true },
+      "error": {
+        "code": "NO_MATCHING_RULE",
+        "message": "This connection is not allowed by the current OT topology rules. Check component types, zones, and protocol expectations."
+      }
+    }
+  ]
+}

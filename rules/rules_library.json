@@ -1,0 +1,222 @@
+
+[
+  {
+    "id": "b1a9b8e0-3c7f-4b1e-8e3b-9e4a3a3d2c1d",
+    "name": "Boiler Drum Level Critical High",
+    "description": "Boiler drum water level has exceeded the critical high safety threshold.",
+    "applies_to": {
+      "component_types": ["DCS_Controller"],
+      "setpoint_names": ["Drum Level SP"]
+    },
+    "trigger": {
+      "event": "WRITE"
+    },
+    "conditions": {
+      "logic": "any",
+      "clauses": [
+        {
+          "metric": "absolute",
+          "operator": ">",
+          "value": 65
+        }
+      ]
+    },
+    "severity": "critical",
+    "actions": [
+      {
+        "type": "ALERT_OPERATOR"
+      },
+      {
+        "type": "RAISE_ESD_INTERLOCK_REQUEST"
+      }
+    ],
+    "enabled": true,
+    "source": "LLM_AUTOGEN",
+    "version": "v1",
+    "metadata": {
+      "rationale": "Critically high drum level risks water carryover into the turbine, causing catastrophic damage."
+    }
+  },
+  {
+    "id": "c2d4e8f0-1a2b-3c4d-5e6f-7a8b9c0d1e2f",
+    "name": "Boiler Drum Level Critical Low",
+    "description": "Boiler drum water level has dropped below the critical low safety threshold.",
+    "applies_to": {
+      "component_types": ["DCS_Controller"],
+      "setpoint_names": ["Drum Level SP"]
+    },
+    "trigger": {
+      "event": "WRITE"
+    },
+    "conditions": {
+      "logic": "any",
+      "clauses": [
+        {
+          "metric": "absolute",
+          "operator": "<",
+          "value": 45
+        }
+      ]
+    },
+    "severity": "critical",
+    "actions": [
+      {
+        "type": "ALERT_OPERATOR"
+      },
+      {
+        "type": "RAISE_ESD_INTERLOCK_REQUEST"
+      }
+    ],
+    "enabled": true,
+    "source": "LLM_AUTOGEN",
+    "version": "v1",
+    "metadata": {
+      "rationale": "Critically low drum level risks overheating and tube rupture, leading to a boiler explosion."
+    }
+  },
+  {
+    "id": "d3e5f8a1-b2c3-4d5e-6f7a-8b9c0d1e2f3a",
+    "name": "Turbine Speed Overspeed Setpoint",
+    "description": "Turbine speed setpoint exceeds the maximum allowable operating speed.",
+    "applies_to": {
+      "component_types": ["DCS_Controller"],
+      "setpoint_names": ["Turbine Speed SP"]
+    },
+    "trigger": {
+      "event": "WRITE"
+    },
+    "conditions": {
+      "logic": "any",
+      "clauses": [
+        {
+          "metric": "absolute",
+          "operator": ">",
+          "value": 3150
+        }
+      ]
+    },
+    "severity": "critical",
+    "actions": [
+      {
+        "type": "BLOCK_WRITE"
+      },
+      {
+        "type": "HIGH_ALERT_PANEL_FLASH"
+      }
+    ],
+    "enabled": true,
+    "source": "LLM_AUTOGEN",
+    "version": "v1",
+    "metadata": {
+      "rationale": "Turbine overspeed can lead to catastrophic mechanical failure and blade ejection."
+    }
+  },
+  {
+    "id": "e4f6a8b1-c3d4-5e6f-7a8b-9c0d1e2f3a4b",
+    "name": "Unauthorized Setpoint Write Source",
+    "description": "A setpoint was modified from a source not authorized for engineering changes.",
+    "applies_to": {
+      "component_types": ["DCS_Controller", "PLC", "Safety_PLC_ESD"]
+    },
+    "trigger": {
+      "event": "WRITE"
+    },
+    "conditions": {
+      "logic": "any",
+      "clauses": [
+        {
+          "metric": "authz",
+          "operator": "not_in",
+          "value": ["EWS", "TCS-HMI", "BOILER-HMI"]
+        }
+      ]
+    },
+    "severity": "alert",
+    "actions": [
+      {
+        "type": "LOG_AUDIT_EVENT"
+      },
+      {
+        "type": "ALERT_OPERATOR"
+      }
+    ],
+    "enabled": true,
+    "source": "LLM_AUTOGEN",
+    "version": "v1",
+    "metadata": {
+      "rationale": "Ensures that only designated engineering stations or HMIs can change critical setpoints, preventing unauthorized changes."
+    }
+  },
+  {
+    "id": "f5a7b8c2-d4e5-6f7a-8b9c-0d1e2f3a4b5c",
+    "name": "Rapid Setpoint Change - Drum Level",
+    "description": "The boiler drum level setpoint was changed too quickly.",
+    "applies_to": {
+      "component_types": ["DCS_Controller"],
+      "setpoint_names": ["Drum Level SP"]
+    },
+    "trigger": {
+      "event": "WRITE"
+    },
+    "conditions": {
+      "logic": "any",
+      "clauses": [
+        {
+          "metric": "percent_change",
+          "operator": ">",
+          "value": 10,
+          "window": "10s"
+        }
+      ]
+    },
+    "severity": "alert",
+    "actions": [
+      {
+        "type": "ALERT_OPERATOR"
+      },
+      {
+        "type": "LOG_AUDIT_EVENT"
+      }
+    ],
+    "enabled": true,
+    "source": "LLM_AUTOGEN",
+    "version": "v1",
+    "metadata": {
+      "rationale": "Sudden large changes in drum level can destabilize the boiler-turbine system."
+    }
+  },
+    {
+    "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+    "name": "High Pressure Heater Temp High",
+    "description": "Temperature setpoint for a high pressure feedwater heater is too high.",
+    "applies_to": {
+      "component_types": ["DCS_Controller"],
+      "setpoint_names": ["HP Heater Temp SP"]
+    },
+    "trigger": {
+      "event": "WRITE"
+    },
+    "conditions": {
+      "logic": "any",
+      "clauses": [
+        {
+          "metric": "absolute",
+          "operator": ">",
+          "value": 280
+        }
+      ]
+    },
+    "severity": "alert",
+    "actions": [
+      {
+        "type": "ALERT_OPERATOR"
+      }
+    ],
+    "enabled": true,
+    "source": "LLM_AUTOGEN",
+    "version": "v1",
+    "metadata": {
+      "rationale": "Overheating feedwater can affect boiler efficiency and cause thermal stress on components."
+    }
+  }
+]
